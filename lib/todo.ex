@@ -67,50 +67,38 @@ defmodule TodoList.CsvImporter do
 end
 
 defmodule TodoServer do
+  def init() do
+    TodoList.new()
+  end
+
   def start() do
-    spawn(fn -> loop(TodoList.new()) end)
+    ServerProcess.start(TodoServer)
   end
 
-  defp loop(todo_list) do
-    new_list =
-      receive do
-        message -> process_message(todo_list, message)
-      end
-
-    loop(new_list)
-
-  end
-
-  defp process_message(todo_list, {:add, entry}) do
+  def handle_cast({:add, entry}, todo_list) do
     TodoList.add_entry(todo_list, entry)
   end
 
-  defp process_message(todo_list, {:remove, entry_id}) do
+  def handle_cast({:remove, entry_id}, todo_list) do
     TodoList.delete_entry(todo_list, entry_id)
   end
 
-  defp process_message(todo_list, {:entries, date, caller }) do
-    send(caller, {:response, TodoList.entries(todo_list, date)})
-    todo_list
+  def handle_call({:entries, date}, todo_list) do
+    {TodoList.entries(todo_list, date), todo_list}
   end
 
   # client functions
 
   def add(server_pid, entry) do
-    send(server_pid, {:add, entry})
+    ServerProcess.cast(server_pid, {:add, entry})
   end
 
   def remove(server_pid, entry_id) do
-    send(server_pid, {:remove, entry_id})
+    ServerProcess.cast(server_pid, {:remove, entry_id})
   end
 
   def entries(server_pid, date) do
-    send(server_pid, {:entries, date, self()})
-    receive do
-      {:response, value} ->
-        value
-    end
-
+    ServerProcess.call(server_pid, {:entries, date})
   end
 
 end
