@@ -1,30 +1,44 @@
 
 defmodule KeyValueStore do
-  def init do
-    %{}
-  end
-  def handle_call({:put, key, value}, state) do
-    {:ok, Map.put(state, key, value)}
-  end
-  def handle_call({:get, key}, state) do
-    {Map.get(state, key), state}
+  use GenServer
+
+  @impl GenServer
+  def init(_) do
+    :timer.send_interval(5000, :cleanup)
+    {:ok, %{}}
   end
 
+  @impl GenServer
+  def handle_call({:get, key}, _, state) do
+    {:reply, Map.get(state, key), state}
+  end
+
+  @impl GenServer
+  def handle_info(:cleanup, state) do
+    IO.puts "performing cleanup..."
+    {:noreply, state}
+  end
+
+  @impl GenServer
   def handle_cast({:put, key, value}, state) do
-    Map.put(state, key, value)
+    {:noreply, Map.put(state, key, value)}
   end
 
-  def start() do
-    ServerProcess.start(KeyValueStore)
+  @impl GenServer
+  def terminate(reason, _) do
+    IO.puts("terminating for reason: #{reason}")
   end
 
-  def put(pid, key, val) do
-    ServerProcess.call(pid, {:put, key, val})
+ def put(pid, key, value) do
+    GenServer.cast(pid, {:put, key, value})
   end
 
   def get(pid, key) do
-    ServerProcess.call(pid, {:get, key})
+    GenServer.call(pid, {:get, key})
+  end
 
+  def start do
+    GenServer.start(KeyValueStore, nil)
   end
 end
 
