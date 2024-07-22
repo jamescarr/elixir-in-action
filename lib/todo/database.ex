@@ -26,7 +26,7 @@ defmodule Todo.Database do
   def child_spec(_) do
     %{
       id: __MODULE__,
-      start: {__MODULE__, :start_link, []},
+      start: {__MODULE__, :start_llink, []},
       type: :supervisor
     }
   end
