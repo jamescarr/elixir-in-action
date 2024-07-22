@@ -1,6 +1,5 @@
 defmodule Todo.ProcessRegistry do
   def start_link do
-    IO.puts("[#{inspect(self())}] Starting Process Registry")
     Registry.start_link(keys: :unique, name: __MODULE__)
   end
 
@@ -9,12 +8,10 @@ defmodule Todo.ProcessRegistry do
   end
 
   def child_spec(_) do
-    IO.puts("Child Spec...")
     Supervisor.child_spec(
       Registry,
       id: __MODULE__,
       start: {__MODULE__, :start_link, []}
     )
   end
-
 end
