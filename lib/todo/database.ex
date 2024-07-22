@@ -1,13 +1,21 @@
 defmodule Todo.Database do
+  require Logger
+
   @pool_size 3
   @db_folder "./persist"
 
   def start_link do
-    IO.puts("Starting database server.")
+    Logger.info("Starting database server.")
     File.mkdir_p!(@db_folder)
 
-    children = Enum.map(1..@pool_size, &worker_spec/1)
-    Supervisor.start_link(children, strategy: :one_for_one)
+    try do
+      children = Enum.map(1..@pool_size, &worker_spec/1)
+      Supervisor.start_link(children, strategy: :one_for_one)
+    rescue
+      e in ArgumentError ->
+          Logger.error("Error creating child_spec for worker: #{inspect(e)}")
+          raise e
+    end
   end
 
   defp worker_spec(worker_id) do
@@ -38,4 +46,5 @@ defmodule Todo.Database do
   defp choose_worker(key) do
     :erlang.phash2(key, @pool_size) + 1
   end
+
 end
