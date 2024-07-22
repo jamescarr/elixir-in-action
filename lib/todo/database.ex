@@ -10,6 +10,14 @@ defmodule Todo.Database do
     Supervisor.start_link(children, strategy: :one_for_one)
   end
 
+  def child_spec(_) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_llink, []},
+      type: :supervisor
+    }
+  end
+
   defp worker_spec(worker_id) do
     default_worker_spec = {Todo.DatabaseWorker, {@db_folder, worker_id}}
     Supervisor.child_spec(default_worker_spec, id: worker_id)
@@ -19,7 +27,6 @@ defmodule Todo.Database do
     key
     |> choose_worker()
     |> Todo.DatabaseWorker.store(key, data)
-    GenServer.cast(__MODULE__, {:store, key, data})
   end
 
   def get(key) do
@@ -29,15 +36,7 @@ defmodule Todo.Database do
   end
 
   defp choose_worker(key) do
-    :erlang.phash2(key, @pool_size)
-  end
-
-  def child_spec(_) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_llink, []},
-      type: :supervisor
-    }
+    :erlang.phash2(key, @pool_size) + 1
   end
 
 end
