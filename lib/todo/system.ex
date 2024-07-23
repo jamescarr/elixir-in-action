@@ -11,6 +11,7 @@ defmodule Todo.System do
     Logger.info("Initializing Todo.System supervisor...")
     children =
       [
+        Todo.Metrics,
         Todo.ProcessRegistry,
         Todo.Database,
         Todo.Cache
