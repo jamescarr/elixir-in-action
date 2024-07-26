@@ -14,17 +14,19 @@ defmodule Todo.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: extra_applications(Mix.env()),
+      mod: {Todo.Application, []}
     ]
   end
+
+  defp extra_applications(:prod), do: [:logger]
+  defp extra_applications(_), do: [:logger, :wx, :runtime_tools, :observer]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
-      {:nimble_pool, "~> 0.2.3"},
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:poolboy, "~> 1.5"}
     ]
   end
 end

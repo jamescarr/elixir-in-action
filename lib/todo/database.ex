@@ -1,50 +1,36 @@
 defmodule Todo.Database do
-  require Logger
-
   @pool_size 3
   @db_folder "./persist"
 
-  def start_link do
-    Logger.info("Starting database server.")
+  def child_spec(_) do
     File.mkdir_p!(@db_folder)
 
-    try do
-      children = Enum.map(1..@pool_size, &worker_spec/1)
-      Supervisor.start_link(children, strategy: :one_for_one)
-    rescue
-      e in ArgumentError ->
-          Logger.error("Error creating child_spec for worker: #{inspect(e)}")
-          raise e
-    end
-  end
-
-  defp worker_spec(worker_id) do
-    default_worker_spec = {Todo.DatabaseWorker, {@db_folder, worker_id}}
-    Supervisor.child_spec(default_worker_spec, id: worker_id)
-  end
-
-  def child_spec(_) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, []},
-      type: :supervisor
-    }
+    :poolboy.child_spec(
+      __MODULE__,
+      [
+        name: {:local, __MODULE__},
+        worker_module: Todo.DatabaseWorker,
+        size: @pool_size
+      ],
+      [@db_folder]
+    )
   end
 
   def store(key, data) do
-    key
-    |> choose_worker()
-    |> Todo.DatabaseWorker.store(key, data)
+    :poolboy.transaction(
+      __MODULE__,
+      fn worker_pid ->
+        Todo.DatabaseWorker.store(worker_pid, key, data)
+      end
+    )
   end
 
   def get(key) do
-    key
-    |> choose_worker()
-    |> Todo.DatabaseWorker.get(key)
+    :poolboy.transaction(
+      __MODULE__,
+      fn worker_pid ->
+        Todo.DatabaseWorker.get(worker_pid, key)
+      end
+    )
   end
-
-  defp choose_worker(key) do
-    :erlang.phash2(key, @pool_size) + 1
-  end
-
 end

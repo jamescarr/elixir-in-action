@@ -1,12 +1,6 @@
 defmodule Todo.CacheTest do
   use ExUnit.Case
 
-  setup_all do
-    pid = Supervisor.start_link([Todo.Cache], strategy: :one_for_one)
-    {:ok, supervisor: pid}
-  end
-
-
   test "server_process" do
     bob_pid = Todo.Cache.server_process("bob")
 
