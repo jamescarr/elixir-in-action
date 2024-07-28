@@ -2,12 +2,12 @@
 
 # Docker build command
 # Build the Docker image
-build: ## Build the Docker image
+build_docker: ## Build the Docker image
 	docker build . -t elixir-in-action/todo
 
 # Docker run command
 # Run the Docker container
-run: ## Run the Docker container
+run_docker: ## Run the Docker container
 	docker run \
 		--rm -it \
 		--name todo_system \
