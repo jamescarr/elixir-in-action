@@ -1,5 +1,4 @@
 defmodule Todo.Web do
-  alias IEx.App
   use Plug.Router
 
   plug :match
