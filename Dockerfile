@@ -1,6 +1,6 @@
 ARG ELIXIR="1.17.2"
-ARG ERLANG="26.0.2"
-ARG DEBIAN="bookworm-20230612-slim"
+ARG ERLANG="26.2.5.2"
+ARG DEBIAN="bookworm-20240701-slim"
 ARG OS="debian-${DEBIAN}"
 FROM "hexpm/elixir:${ELIXIR}-erlang-${ERLANG}-${OS}" as builder
 
