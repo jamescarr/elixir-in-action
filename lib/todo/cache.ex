@@ -4,7 +4,6 @@ defmodule Todo.Cache do
     DynamicSupervisor.start_link(name: __MODULE__, strategy: :one_for_one)
   end
 
-
   def child_spec(_arg) do
     %{
       id: __MODULE__,
