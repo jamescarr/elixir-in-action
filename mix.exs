@@ -25,8 +25,8 @@ defmodule Todo.MixProject do
     ]
   end
 
-  defp extra_applications(:prod), do: [:logger]
-  defp extra_applications(_), do: [:logger, :wx, :runtime_tools, :observer]
+  defp extra_applications(:prod), do: [:logger, :runtime_tools]
+  defp extra_applications(_), do: extra_applications(:prod) ++  [:wx,:observer]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do

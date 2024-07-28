@@ -14,6 +14,20 @@ run_docker: ## Run the Docker container
 		-p "5454:5454" \
 		elixir-in-action/todo
 
+# Run as a daemon
+local_daemon: ## Runs the release as a local daemon
+	RELEASE_NODE="todo@localhost" \
+  		RELEASE_COOKIE="todo" \
+  		_build/prod/rel/todo/bin/todo daemon
+
+local_daemon_stop: ## Stops the local daemon
+	RELEASE_NODE="todo@localhost" \
+  		RELEASE_COOKIE="todo" \
+  		_build/prod/rel/todo/bin/todo stop
+
+local_daemon_attach: ## Attach to local daemon for debugging
+	_build/prod/rel/todo/erts-14.2.5/bin/to_erl _build/prod/rel/todo/tmp/pipe
+
 # Test add entry
 # Add a new entry
 test_add_entry: ## Add a new entry. Usage: make test_add_entry list=bob date=2023-12-19 title="Dentist"
