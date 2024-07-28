@@ -48,4 +48,7 @@ defmodule Todo.Web do
     )
   end
 
+  match _ do
+    Plug.Conn.send_resp(conn, 404, "not found")
+  end
 end
