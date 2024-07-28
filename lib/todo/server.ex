@@ -1,9 +1,13 @@
 defmodule Todo.Server do
-  @expiry 5000
   use GenServer, restart: :temporary
+  @expiry 5000
 
   def start_link(name) do
-    GenServer.start_link(Todo.Server, name, name: via_tuple(name))
+    GenServer.start_link(Todo.Server, name, name: global_name(name))
+  end
+
+  defp global_name(name) do
+    {:global, {__MODULE__, name}}
   end
 
   def add_entry(todo_server, new_entry) do
@@ -14,10 +18,12 @@ defmodule Todo.Server do
     GenServer.call(todo_server, {:entries, date})
   end
 
-  defp via_tuple(name) do
-    Todo.ProcessRegistry.via_tuple({__MODULE__, name})
+  def whereis(name) do
+    case :global.whereis_name({__MODULE__, name}) do
+      :undefined -> nil
+      pid -> pid
+    end
   end
-
   @impl GenServer
   def init(name) do
     IO.puts("Starting to-do server for #{name}.")

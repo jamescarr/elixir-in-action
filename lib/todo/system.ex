@@ -12,7 +12,6 @@ defmodule Todo.System do
     children =
       [
         Todo.Metrics,
-        Todo.ProcessRegistry,
         Todo.Database,
         Todo.Cache,
         Todo.Web
